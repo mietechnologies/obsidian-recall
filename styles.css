@@ -1,0 +1,199 @@
+/* ── Highlight marks ─────────────────────────────────────────────────────── */
+
+.recall-highlight-task {
+	background-color: color-mix(in srgb, var(--recall-task-color, #e8a000) 18%, transparent);
+	color: var(--recall-task-color, #e8a000);
+	border-radius: 3px;
+	padding: 0 2px;
+	font-weight: 600;
+}
+
+.recall-highlight-reminder {
+	background-color: color-mix(in srgb, var(--recall-reminder-color, #4a9ef5) 18%, transparent);
+	color: var(--recall-reminder-color, #4a9ef5);
+	border-radius: 3px;
+	padding: 0 2px;
+	font-weight: 600;
+}
+
+/* ── Side pane container ──────────────────────────────────────────────────── */
+
+.recall-view {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	overflow-y: auto;
+	padding: 0;
+}
+
+/* ── Section ─────────────────────────────────────────────────────────────── */
+
+.recall-section {
+	padding: 12px 0 8px;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.recall-section:last-child {
+	border-bottom: none;
+}
+
+.recall-section-header {
+	padding: 0 14px 6px;
+}
+
+.recall-section-title-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 4px;
+}
+
+.recall-section-title {
+	font-size: var(--font-ui-small);
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--text-muted);
+}
+
+.recall-count {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-faint);
+	background: var(--background-modifier-border);
+	border-radius: 10px;
+	padding: 1px 6px;
+	font-weight: 500;
+}
+
+/* ── Toggle button ───────────────────────────────────────────────────────── */
+
+.recall-toggle-btn {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	background: none;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	padding: 2px 8px;
+	cursor: pointer;
+	transition: background 100ms;
+}
+
+.recall-toggle-btn:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+/* ── List ────────────────────────────────────────────────────────────────── */
+
+.recall-list {
+	display: flex;
+	flex-direction: column;
+}
+
+.recall-empty {
+	padding: 6px 14px;
+	font-size: var(--font-ui-small);
+	color: var(--text-faint);
+	font-style: italic;
+}
+
+/* ── File group headers ──────────────────────────────────────────────────── */
+
+.recall-file-group-header {
+	padding: 4px 14px 2px;
+	font-size: var(--font-ui-smaller);
+	font-weight: 600;
+	color: var(--text-faint);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	border-top: 1px solid var(--background-modifier-border);
+	margin-top: 4px;
+}
+
+.recall-file-group-header:first-child {
+	border-top: none;
+	margin-top: 0;
+}
+
+/* ── Items ───────────────────────────────────────────────────────────────── */
+
+.recall-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	padding: 5px 14px;
+	cursor: pointer;
+	border-radius: 0;
+	transition: background 80ms;
+}
+
+.recall-item:hover {
+	background: var(--background-modifier-hover);
+}
+
+.recall-checkbox {
+	flex-shrink: 0;
+	font-size: 11px;
+	color: var(--text-muted);
+	margin-top: 1px;
+	width: 14px;
+	text-align: center;
+}
+
+.recall-task .recall-checkbox {
+	color: var(--recall-task-color, #e8a000);
+}
+
+.recall-completed .recall-checkbox {
+	color: var(--text-faint);
+}
+
+.recall-item-content {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.recall-item-text {
+	font-size: var(--font-ui-small);
+	color: var(--text-normal);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.recall-completed .recall-item-text {
+	color: var(--text-faint);
+	text-decoration: line-through;
+}
+
+/* ── Due date ────────────────────────────────────────────────────────────── */
+
+.recall-due-date {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+}
+
+.recall-overdue {
+	color: var(--text-error, #e05050);
+	font-weight: 600;
+}
+
+/* ── Reminder accent ─────────────────────────────────────────────────────── */
+
+.recall-reminder .recall-item-text::before {
+	content: "● ";
+	font-size: 8px;
+	color: var(--recall-reminder-color, #4a9ef5);
+	vertical-align: middle;
+}
+
+/* ── Settings ────────────────────────────────────────────────────────────── */
+
+.recall-index-stats {
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+	margin: 4px 0 12px;
+}
