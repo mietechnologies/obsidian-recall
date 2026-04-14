@@ -1,0 +1,11 @@
+{
+	"id": "recall",
+	"name": "Recall",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "",
+	"author": "Brett C",
+	"authorUrl": "",
+	"fundingUrl": "",
+	"isDesktopOnly": false
+}
