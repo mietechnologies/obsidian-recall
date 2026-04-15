@@ -1,8 +1,22 @@
 import { Extension, RangeSetBuilder } from "@codemirror/state";
-import { Decoration, DecorationSet, EditorView, ViewPlugin, ViewUpdate } from "@codemirror/view";
+import { Decoration, DecorationSet, EditorView, ViewPlugin, ViewUpdate, WidgetType } from "@codemirror/view";
 import { MarkdownPostProcessorContext } from "obsidian";
 
-const DESIGNATION_RE = /Task::|Reminder::/g;
+// Capture groups: match[1] = keyword ("Task" | "Reminder"), match[2] = "::"
+const DESIGNATION_RE = /(Task|Reminder)(::)/g;
+
+// Empty widget used to replace "::" in the editor — keeps the characters in
+// the document but renders nothing, so the cursor can still pass through.
+class HiddenColonsWidget extends WidgetType {
+	toDOM(): HTMLElement {
+		return document.createElement("span");
+	}
+	ignoreEvent(): boolean {
+		return false;
+	}
+}
+
+const HIDDEN_COLONS = new HiddenColonsWidget();
 
 function buildDecorations(view: EditorView): DecorationSet {
 	const builder = new RangeSetBuilder<Decoration>();
@@ -13,13 +27,19 @@ function buildDecorations(view: EditorView): DecorationSet {
 
 		let match: RegExpExecArray | null;
 		while ((match = DESIGNATION_RE.exec(text)) !== null) {
-			const start = from + match.index;
-			const end = start + match[0].length;
+			const matchStart = from + match.index;
+			const keywordEnd = matchStart + match[1].length; // end of "Task" / "Reminder"
+			const fullEnd = matchStart + match[0].length;   // end of "::"
+
 			const cls =
-				match[0] === "Task::"
+				match[1] === "Task"
 					? "recall-highlight-task"
 					: "recall-highlight-reminder";
-			builder.add(start, end, Decoration.mark({ class: cls }));
+
+			// Highlight the keyword
+			builder.add(matchStart, keywordEnd, Decoration.mark({ class: cls }));
+			// Hide the "::" (adjacent, non-overlapping)
+			builder.add(keywordEnd, fullEnd, Decoration.replace({ widget: HIDDEN_COLONS }));
 		}
 	}
 
@@ -66,7 +86,7 @@ export function readingViewPostProcessor(
 
 		const text = textNode.textContent ?? "";
 		const fragment = document.createDocumentFragment();
-		const re = /Task::|Reminder::/g;
+		const re = /(Task|Reminder)(::)/g;
 		let last = 0;
 		let m: RegExpExecArray | null;
 
@@ -76,8 +96,8 @@ export function readingViewPostProcessor(
 			}
 			const span = document.createElement("span");
 			span.className =
-				m[0] === "Task::" ? "recall-highlight-task" : "recall-highlight-reminder";
-			span.textContent = m[0];
+				m[1] === "Task" ? "recall-highlight-task" : "recall-highlight-reminder";
+			span.textContent = m[1]; // "Task" or "Reminder" — "::" intentionally omitted
 			fragment.appendChild(span);
 			last = m.index + m[0].length;
 		}
