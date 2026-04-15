@@ -26,6 +26,52 @@
 	padding: 0;
 }
 
+/* ── Search bar ──────────────────────────────────────────────────────────── */
+
+.recall-search-bar {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 10px 10px 8px;
+	border-bottom: 1px solid var(--background-modifier-border);
+	position: sticky;
+	top: 0;
+	background: var(--background-primary);
+	z-index: 1;
+}
+
+.recall-search-input {
+	flex: 1;
+	font-size: var(--font-ui-small);
+	background: var(--background-modifier-form-field);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	padding: 4px 8px;
+	color: var(--text-normal);
+	outline: none;
+}
+
+.recall-search-input:focus {
+	border-color: var(--interactive-accent);
+}
+
+.recall-search-clear {
+	flex-shrink: 0;
+	font-size: 11px;
+	color: var(--text-muted);
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 2px 4px;
+	border-radius: var(--radius-s);
+	line-height: 1;
+}
+
+.recall-search-clear:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
 /* ── Section ─────────────────────────────────────────────────────────────── */
 
 .recall-section {

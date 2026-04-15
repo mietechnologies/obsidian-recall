@@ -7,6 +7,8 @@ export const VIEW_TYPE_RECALL = "recall-designation-view";
 export class DesignationView extends ItemView {
 	private plugin: RecallPlugin;
 	private showCompleted: boolean;
+	private query = "";
+	private sectionsEl: HTMLElement | null = null;
 	private unsubscribe?: () => void;
 
 	constructor(leaf: WorkspaceLeaf, plugin: RecallPlugin) {
@@ -41,15 +43,48 @@ export class DesignationView extends ItemView {
 		root.empty();
 		root.addClass("recall-view");
 
-		this.renderTasksSection(root);
-		this.renderRemindersSection(root);
+		this.renderSearchBar(root);
+		this.sectionsEl = root.createDiv({ cls: "recall-sections" });
+		this.renderSections();
+	}
+
+	private renderSections(): void {
+		if (!this.sectionsEl) return;
+		this.sectionsEl.empty();
+		this.renderTasksSection(this.sectionsEl);
+		this.renderRemindersSection(this.sectionsEl);
+	}
+
+	// ── Search bar ───────────────────────────────────────────────────────────
+
+	private renderSearchBar(root: HTMLElement): void {
+		const wrapper = root.createDiv({ cls: "recall-search-bar" });
+		const input = wrapper.createEl("input", {
+			type: "text",
+			placeholder: "Search tasks and reminders…",
+			cls: "recall-search-input",
+		});
+		input.value = this.query;
+		input.addEventListener("input", () => {
+			this.query = input.value;
+			this.renderSections();
+		});
+
+		if (this.query) {
+			const clear = wrapper.createEl("button", { cls: "recall-search-clear", text: "✕" });
+			clear.addEventListener("click", () => {
+				this.query = "";
+				this.render();
+			});
+		}
 	}
 
 	// ── Tasks ────────────────────────────────────────────────────────────────
 
 	private renderTasksSection(root: HTMLElement): void {
 		const allTasks = this.plugin.vaultIndex.getTasks();
-		const visible = this.showCompleted ? allTasks : allTasks.filter((t) => !t.completed);
+		const afterCompleted = this.showCompleted ? allTasks : allTasks.filter((t) => !t.completed);
+		const visible = afterCompleted.filter((t) => this.matchesQuery(t));
 		const sorted = this.sortTasks(visible);
 
 		const section = root.createDiv({ cls: "recall-section" });
@@ -58,7 +93,10 @@ export class DesignationView extends ItemView {
 		const header = section.createDiv({ cls: "recall-section-header" });
 		const titleRow = header.createDiv({ cls: "recall-section-title-row" });
 		titleRow.createSpan({ cls: "recall-section-title", text: "Tasks" });
-		titleRow.createSpan({ cls: "recall-count", text: String(visible.length) });
+		const countText = this.query
+			? `${visible.length} / ${afterCompleted.length}`
+			: String(visible.length);
+		titleRow.createSpan({ cls: "recall-count", text: countText });
 
 		const toggleBtn = header.createEl("button", {
 			cls: "recall-toggle-btn",
@@ -125,14 +163,19 @@ export class DesignationView extends ItemView {
 	// ── Reminders ────────────────────────────────────────────────────────────
 
 	private renderRemindersSection(root: HTMLElement): void {
-		const reminders = this.sortReminders(this.plugin.vaultIndex.getReminders());
+		const allReminders = this.plugin.vaultIndex.getReminders();
+		const visible = allReminders.filter((r) => this.matchesQuery(r));
+		const reminders = this.sortReminders(visible);
 
 		const section = root.createDiv({ cls: "recall-section" });
 
 		const header = section.createDiv({ cls: "recall-section-header" });
 		const titleRow = header.createDiv({ cls: "recall-section-title-row" });
 		titleRow.createSpan({ cls: "recall-section-title", text: "Reminders" });
-		titleRow.createSpan({ cls: "recall-count", text: String(reminders.length) });
+		const countText = this.query
+			? `${visible.length} / ${allReminders.length}`
+			: String(visible.length);
+		titleRow.createSpan({ cls: "recall-count", text: countText });
 
 		if (reminders.length === 0) {
 			section.createDiv({ cls: "recall-empty", text: "No reminders found." });
@@ -162,6 +205,17 @@ export class DesignationView extends ItemView {
 	toggleCompleted(): void {
 		this.showCompleted = !this.showCompleted;
 		this.render();
+	}
+
+	// ── Filtering ────────────────────────────────────────────────────────────
+
+	private matchesQuery(item: { text: string; filePath: string }): boolean {
+		if (!this.query) return true;
+		const q = this.query.toLowerCase();
+		return (
+			item.text.toLowerCase().includes(q) ||
+			this.fileLabel(item.filePath).toLowerCase().includes(q)
+		);
 	}
 
 	// ── Sorting / grouping ───────────────────────────────────────────────────
